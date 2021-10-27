@@ -1,96 +1,60 @@
+# 平安复旦自动打卡
 
-# 免责声明
-郑重声明：本人只是使用该脚本测试微信通知功能，并不了解脚本本身功能，未参与脚本开发，不承担一切相关与连带责任。
-以下大部分为原作者的内容
-
-# Daily_Fudan
-> 一键平安复旦小脚本
-> 
-
-> 无用的前情提要：https://zhuanlan.zhihu.com/p/136340395
->
->
-
+使用python打卡平安复旦并使用qq邮箱推送
 
 ---
 
-## 💭声明
-一眨眼过了一年，没想到时至今日还要填这个煞笔玩意，呵呵呵。
+## 如何使用
+1. python3 fudanDaily.py
+2. 按照提示输入发送打卡推送的邮箱和token
+3. 输入账号密码邮箱
+4. 输入百度OCRAPI
+5. 完成自动打卡接受到邮件
 
+### python3需要的库
+PYmail、bs4、lxml、requests、base64base64
+```
+pip3 install PYmail
+pip3 install bs4
+pip3 install lxml
+pip3 install requests
+pip3 install base64
+```
 
-> 🔺 此脚本原理是拉取你上一次提交的信息，然后再次上传。所以跟你前一天信息一样，如果你需要修改，请停止此脚本运行，并手动提交。
-> 
-
-> 🛑 由于本人水平零蛋， 此脚本能跑起来属实意外，本人怀着探讨的目的上传到网络平台交流，并未授权任何人，造成的一切后果概不负责。
-
-
-这个人很懒，此Readme文档直接拿[genshin-impact-helper](https://github.com/y1ndan/genshin-impact-helper)
-改的
-
-## 📐部署
+### 打卡推送的qq邮箱
 <details>
 <summary>查看教程</summary>
-
-- 项目地址：[github/daily_fudan](https://github.com/Limourli-liu/daily_fudan)
-- 点击右上角`Fork`到自己的账号下
-
-![fork](https://i.loli.net/2020/10/28/qpXowZmIWeEUyrJ.png)
-
-- 将仓库默认分支设置为 master 分支
-
-
-### 3. 添加 账号密码 至 Secrets
-
-- 回到项目页面，依次点击`Settings`-->`Secrets`-->`New secret`
-
-![new-secret.png](https://i.loli.net/2020/10/28/sxTuBFtRvzSgUaA.png)
-
-- 建立名为`FUDAN`的 secret，值为`学号`+`(空格)`+`密码`，最后点击`Add secret`
-- secret名字必须为`FUDAN`！
-- secret名字必须为`FUDAN`！
-- secret名字必须为`FUDAN`！
-- 如果要开启成功填写的通知，在 http://iyuu.cn/ 申请token 然后在密码后面+ `(空格)`+`token`
-- `学号`+`(空格)`+`密码`+ `(空格)`+`token`
-- 如果要开启验证码识别，在 http://www.kuaishibie.cn/ 注册账号
-  然后在token后面 + `(空格)`+`uname` + `(空格)`+`pwd`
-- `学号`+`(空格)`+`密码`+ `(空格)`+`token`+`(空格)`+`uname` + `(空格)`+`pwd`
-
-### 4. 启用 Actions
-
-> Actions 默认为关闭状态，Fork 之后需要手动执行一次，若成功运行其才会激活。
-
-返回项目主页面，点击上方的`Actions`，再点击左侧的`Daily Fudan`，再点击`Run workflow`
-    
-![run](https://i.loli.net/2020/10/28/5ylvgdYf9BDMqAH.png)
-
+打开qq邮箱</br>
+https://mail.qq.com/ </br>
+qq邮箱中选择邮箱设置->账户
+![avatar](img/qqMail1.png)</br>
+下翻到如下</br>
+![avatar](img/qqMail2.png)</br>
+开启pop3/SMTP</br>
+再点击下方生成授权码</br>
+授权码即为打卡推送的邮箱和token</br>
 </details>
 
-至此，部署完毕。
-
-## 🔍结果
-
-当你完成上述流程，可以在`Actions`页面点击`Daily Fudan`-->`build`-->`Run sign`查看结果。
-
+---
+### 获取百度OCRAPI
 <details>
-<summary>查看结果</summary>
+<summary>查看教程</summary>
+https://cloud.baidu.com/product/ocr </br>
+打开上述网址登陆后再打开</br>
+https://console.bce.baidu.com/ai/#/ai/ocr/overview/index
+![avatar](img/baiduAPI1.jpg)</br>
+点击免费领取资源 </br>
+然后选择通用文字识别（高精度版）-------ps.个人认证后，一个月1000次完全够用的
 
-### 签到成功
-
-如果成功，会输出类似`成功`的信息：
-
-
-### 签到失败
-
-如果失败，会输出类似`啥`的信息：
-
-
-同时你会收到一封来自GitHub、标题为`Run failed: Daily Fudan - master`的邮件。
-
+然后点击创建应用随便填一填</br>
+完成后如下图API Key和Secret Key就是我们需要的百度的接口密钥
+![avatar](img/baiduAPI2.png)
 </details>
 
-
-
-
-
-
-
+---
+## 说明
+- 打卡时使用前一日地理位置信息。
+- 打卡前会检测当日是否已打卡，避免重复提交。
+- 学校添加了验证码现已更新验证码
+- 如需变更打卡位置请提前停止自动打卡，到新位置手动打卡一次再开启（或赶在自动打卡时间前手动打卡）或者可以自己动手改一下要post的json。
+- 未经充分测试，不保证最终效果，请酌情使用。
