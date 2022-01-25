@@ -3,7 +3,7 @@
  * @Date 1/24/22
  **/
 
-package main
+package mail
 
 import (
 	"crypto/tls"
