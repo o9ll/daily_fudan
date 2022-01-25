@@ -1,25 +1,16 @@
 # 平安复旦自动打卡
 
-使用python打卡平安复旦并使用qq邮箱推送
+使用Golang打卡平安复旦并使用qq邮箱推送
 
 ---
 
 ## 如何使用
-1. python3 fudanDaily.py
+1. go run fudanDaily.go 
 2. 按照提示输入发送打卡推送的邮箱和token
 3. 输入账号密码邮箱
 4. 输入百度OCRAPI
 5. 完成自动打卡接受到邮件
 
-### python3需要的库
-PYmail、bs4、lxml、requests、base64base64
-```
-pip3 install PYmail
-pip3 install bs4
-pip3 install lxml
-pip3 install requests
-pip3 install base64
-```
 
 ### 打卡推送的qq邮箱
 <details>
