@@ -50,6 +50,7 @@ func getUrlValue(form map[string]string) url.Values {
 
 func login(info userInfo) {
 	request, _ := http.NewRequest("GET", loginUrl, nil)
+	setHeader(request)
 	resp, _ := client.Do(request)
 	form := map[string]string{}
 	body, _ := ioutil.ReadAll(resp.Body)
@@ -58,7 +59,9 @@ func login(info userInfo) {
 	for i := range a {
 		name := htmlquery.SelectAttr(a[i], "name")
 		value := htmlquery.SelectAttr(a[i], "value")
-		form[name] = value
+		if name != "" {
+			form[name] = value
+		}
 	}
 	form["username"] = info.Username
 	form["password"] = info.Password
