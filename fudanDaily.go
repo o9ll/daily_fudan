@@ -8,9 +8,8 @@ package main
 import (
 	"fmt"
 	"github.com/antchfx/htmlquery"
-	"io/ioutil"
+	"github.com/kirinlabs/HttpRequest"
 	"net/http"
-	"net/url"
 	"strings"
 )
 
@@ -38,32 +37,36 @@ func setHeader(r *http.Request) {
 	r.Header.Add("Referer", Referer)
 }
 
-func login(info userInfo) {
-	request, _ := http.NewRequest("GET", loginUrl, nil)
-	setHeader(request)
-	resp, _ := client.Do(request)
-	uv := url.Values{}
-	body, _ := ioutil.ReadAll(resp.Body)
+func login(info userInfo) *HttpRequest.Request {
+	req := HttpRequest.NewRequest()
+	req.SetHeaders(map[string]string{
+		"User-Agent": userAgent,
+		"Origin":     origin,
+		"Referer":    Referer,
+	})
+	resp, _ := req.Get(loginUrl)
+	uv := ""
+	body, _ := resp.Body()
 	h, _ := htmlquery.Parse(strings.NewReader(string(body)))
 	a := htmlquery.Find(h, "//input")
 	for i := range a {
 		name := htmlquery.SelectAttr(a[i], "name")
 		value := htmlquery.SelectAttr(a[i], "value")
-		if name != "" || name == "captchaResponse" {
+		if name != "" && name != "captchaResponse" {
 			if name == "username" {
-				uv.Add(name, info.Username)
+				uv += "&" + name + "=" + info.Username
 			} else if name == "password" {
-				uv.Add(name, info.Password)
+				uv += "&" + name + "=" + info.Password
 			} else {
-				uv.Add(name, value)
+				uv += "&" + name + "=" + value
 			}
 		}
 	}
-	request, _ = http.NewRequest("POST", loginUrl, ioutil.NopCloser(strings.NewReader(uv.Encode())))
-	setHeader(request)
-	resp, _ = client.Do(request)
-	body, _ = ioutil.ReadAll(resp.Body)
+	uv = uv[1:]
+	resp, _ = req.Post(loginUrl, uv)
+	body, _ = resp.Body()
 	fmt.Println(string(body))
+	return req
 }
 
 func main() {
