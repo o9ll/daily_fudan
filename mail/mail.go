@@ -7,6 +7,7 @@ package mail
 
 import (
 	"crypto/tls"
+	. "daily_fudan/operatejson"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -89,27 +90,6 @@ func SendMailUsingTLS(addr string, auth smtp.Auth, from string, to string, msg [
 	}
 	return c.Quit()
 }
-func readFromJson(src string) map[string]interface{} {
-	data, err := ioutil.ReadFile(src)
-	checkError(err)
-	res := make(map[string]interface{})
-	err = json.Unmarshal(data, &res)
-	checkError(err)
-	return res
-}
-
-func writeToJson(src string, res map[string]interface{}) {
-	data, err := json.MarshalIndent(res, "", "	") // 第二个表示每行的前缀，这里不用，第三个是缩进符号，这里用tab
-	checkError(err)
-	err = ioutil.WriteFile(src, data, 0777)
-	checkError(err)
-}
-
-func checkError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
 
 func createEmailJson(src string) {
 	res := &Email{
@@ -146,9 +126,9 @@ func createEmailJson(src string) {
 	fmt.Println(`请输入邮件格式（直接回车为默认"text/html;chartset=UTF-8"）`)
 	fmt.Scanln(&res.Header.ContentType)
 	data, err := json.MarshalIndent(res, "", "	") // 第二个表示每行的前缀，这里不用，第三个是缩进符号，这里用tab
-	checkError(err)
+	CheckError(err)
 	err = ioutil.WriteFile(src, data, 0777)
-	checkError(err)
+	CheckError(err)
 }
 
 func Mail() {
@@ -156,7 +136,7 @@ func Mail() {
 	if data == nil {
 		createEmailJson("mail.json")
 	}
-	email := readFromJson("mail.json")
+	email := ReadFromJson("mail.json")
 	header := email["Header"].(map[string]interface{})
 	message := ""
 	for k, v := range header {
