@@ -7,7 +7,7 @@ package mail
 
 import (
 	"crypto/tls"
-	. "daily_fudan/operatejson"
+	. "daily_fudan/util"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"

@@ -3,7 +3,7 @@
  * @Date 1/26/22
  **/
 
-package operatejson
+package util
 
 import (
 	"bytes"
@@ -27,14 +27,14 @@ func WriteToJson(src string, res map[string]interface{}) {
 	CheckError(err)
 }
 
+func Json2Map(src []byte) map[string]interface{} {
+	res := make(map[string]interface{})
+	json.Unmarshal([]byte(src), &res)
+	return res
+}
+
 func ReadJson(res []byte) string {
 	var str bytes.Buffer
 	json.Indent(&str, res, "", "    ")
 	return str.String()
-}
-
-func CheckError(err error) {
-	if err != nil {
-		panic(err)
-	}
 }

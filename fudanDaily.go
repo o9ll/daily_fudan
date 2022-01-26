@@ -7,7 +7,7 @@ package main
 
 import (
 	"bytes"
-	. "daily_fudan/operatejson"
+	. "daily_fudan/util"
 	"github.com/antchfx/htmlquery"
 	"io/ioutil"
 	"net/http"
@@ -92,11 +92,11 @@ func getHistoryInfo() string {
 }
 
 func main() {
-	user := userInfo{
-		Username: "20210240194",
-		Password: "Liu159632",
-	}
-	login(user)
-	history := getHistoryInfo()
-	ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
+	/*	user := userInfo{
+			Username: "20210240194",
+			Password: "Liu159632",
+		}
+		login(user)
+		history := getHistoryInfo()
+		ioutil.WriteFile(user.Username+".json", []byte(history), 0777)*/
 }
