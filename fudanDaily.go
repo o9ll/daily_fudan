@@ -237,7 +237,7 @@ func main() {
 		data := getPayload(history)
 		if data["date"].(string) == getTodayDate() {
 			fmt.Println("今日已打卡")
-			//break
+			break
 		}
 		img := getcaptchaData()
 		for i := 0; i < times; i++ {
@@ -250,7 +250,6 @@ func main() {
 				break
 			}
 		}
-
 		ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
 	}
 }
