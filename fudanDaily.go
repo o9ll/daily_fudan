@@ -203,6 +203,7 @@ func getPayload(history string) map[string]interface{} {
 	res["realname"] = realname
 	res["sfhbtl"] = "0"
 	res["sfjcgrq"] = "0"
+	res["sfzx"] = "0"
 	if res["area"] == "" {
 		oldInfo := mD["oldInfo"].(map[string]interface{})
 		res["area"] = oldInfo["area"].(string)
@@ -241,19 +242,28 @@ func main() {
 			fmt.Println("今日已打卡")
 			break
 		}
-		img := getcaptchaData()
+		var (
+			flag    bool
+			message string
+		)
 		for i := 0; i < times; i++ {
+			img := getcaptchaData()
 			ans := baiduAPI.Recognize(img)
 			data["sfz"] = "1"
 			data["code"] = ans
-			message := signIn(data)
+			message = signIn(data)
 			if string(message) == success {
-				mail.MailTo(user.Email, `打卡成功`)
+				mail.MailTo(user.Email, `打卡成功`+`验证码识别`+strconv.Itoa(i+1)+"次")
 				fmt.Println("打卡成功")
+				flag = true
 				break
 			} else {
 				fmt.Println(message)
 			}
+		}
+		if !flag {
+			mail.MailTo(user.Email, message)
+			fmt.Println("打卡成功")
 		}
 		ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
 	}
