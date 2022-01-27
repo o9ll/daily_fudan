@@ -11,7 +11,7 @@ import (
 	"io/ioutil"
 )
 
-func ReadFromJson(src string) map[string]interface{} {
+func ReadFromJsonFile(src string) map[string]interface{} {
 	data, err := ioutil.ReadFile(src)
 	CheckError(err)
 	res := make(map[string]interface{})
@@ -20,7 +20,7 @@ func ReadFromJson(src string) map[string]interface{} {
 	return res
 }
 
-func WriteToJson(src string, res map[string]interface{}) {
+func WriteToJsonFile(src string, res map[string]interface{}) {
 	data, err := json.MarshalIndent(res, "", "	") // 第二个表示每行的前缀，这里不用，第三个是缩进符号，这里用tab
 	CheckError(err)
 	err = ioutil.WriteFile(src, data, 0777)

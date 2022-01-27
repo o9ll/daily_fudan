@@ -136,7 +136,7 @@ func Mail() {
 	if data == nil {
 		createEmailJson("mail.json")
 	}
-	email := ReadFromJson("mail.json")
+	email := ReadFromJsonFile("mail.json")
 	header := email["Header"].(map[string]interface{})
 	message := ""
 	for k, v := range header {

@@ -7,7 +7,9 @@ package main
 
 import (
 	"bytes"
+	. "daily_fudan/baiduAPI"
 	. "daily_fudan/util"
+	"encoding/base64"
 	"github.com/antchfx/htmlquery"
 	"io/ioutil"
 	"net/http"
@@ -24,8 +26,9 @@ var (
 	saveUrl       = "https://zlapp.fudan.edu.cn/ncov/wap/fudan/save"
 	userAgent     = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.18(0x17001229) NetType/WIFI Language/zh_CN miniProgram"
 	origin        = "https://zlapp.fudan.edu.cn"
-	Referer       = fudanDailyUrl
+	captchaUrl    = "https://zlapp.fudan.edu.cn/backend/default/code"
 	ContentType   = "application/x-www-form-urlencoded"
+	Referer       = fudanDailyUrl
 	gCurCookies   []*http.Cookie
 	gCurCookieJar *cookiejar.Jar
 )
@@ -42,6 +45,20 @@ func setHeader(r *http.Request) {
 	r.Header.Add("Origin", origin)
 	r.Header.Add("Referer", Referer)
 	r.Header.Add("Content-Type", ContentType)
+}
+
+/*设置验证码请求头*/
+func setCaptchaHeader(r *http.Request) {
+	setHeader(r)
+	r.Header.Add("accept", "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8")
+	r.Header.Add("accept-encoding", "gzip")
+	r.Header.Add("accept-language", "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7")
+	r.Header.Add("dnt", "1")
+	r.Header.Add("sec-ch-ua", `"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"`)
+	r.Header.Add("sec-ch-ua-mobile", "?0")
+	r.Header.Add("sec-fetch-dest", "image")
+	r.Header.Add("sec-fetch-mode", "no-cors")
+	r.Header.Add("sec-fetch-site", "same-origin")
 }
 
 /*初始化client*/
@@ -91,12 +108,23 @@ func getHistoryInfo() string {
 	return ReadJson(res)
 }
 
+func getcaptchaData() (res []byte) {
+	req, _ := http.NewRequest("GET", captchaUrl, nil)
+	setCaptchaHeader(req)
+	resp, _ := client.Do(req)
+	img, _ := ioutil.ReadAll(resp.Body)
+	res = []byte(base64.StdEncoding.EncodeToString(img))
+	return res
+}
+
 func main() {
-	/*	user := userInfo{
-			Username: "20210240194",
-			Password: "Liu159632",
-		}
-		login(user)
-		history := getHistoryInfo()
-		ioutil.WriteFile(user.Username+".json", []byte(history), 0777)*/
+	user := userInfo{
+		Username: "20210240194",
+		Password: "Liu159632",
+	}
+	login(user)
+	img := getcaptchaData()
+	Recognize(img)
+	history := getHistoryInfo()
+	ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
 }
