@@ -26,6 +26,7 @@ export GOPROXY=https://goproxy.cn
 打开qq邮箱</br>
 https://mail.qq.com/ </br>
 qq邮箱中选择邮箱设置->账户
+
 ![avatar](img/qqMail1.png)</br>
 下翻到如下</br>
 ![avatar](img/qqMail2.png)</br>
@@ -41,7 +42,8 @@ qq邮箱中选择邮箱设置->账户
 https://cloud.baidu.com/product/ocr </br>
 打开上述网址登陆后再打开</br>
 https://console.bce.baidu.com/ai/#/ai/ocr/overview/index
-![avatar](img/baiduAPI1.jpg)</br>
+
+![avatar](img/baiduAPI1.jpg) </br>
 点击免费领取资源 </br>
 然后选择通用文字识别（高精度版）-------ps.个人认证后，一个月1000次完全够用的
 
