@@ -142,7 +142,45 @@ func Mail() {
 	for k, v := range header {
 		message += fmt.Sprintf("%s:%s\r\n", k, v)
 	}
+	message += "\r\n" + email["Body"].(string)
 
+	auth := smtp.PlainAuth(
+		"",
+		email["Email"].(string),
+		email["Password"].(string),
+		email["Host"].(string),
+	)
+
+	err := SendMailUsingTLS(
+		email["Host"].(string)+":"+email["Port"].(string),
+		auth,
+		email["Email"].(string),
+		email["ToEmail"].(string),
+		[]byte(message),
+	)
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func MailTo(to, msg string) {
+	data, _ := ioutil.ReadFile("mail.json")
+	if data == nil {
+		createEmailJson("mail.json")
+	}
+	email := ReadFromJsonFile("mail.json")
+	header := email["Header"].(map[string]interface{})
+	message := ""
+	for k, v := range header {
+		message += fmt.Sprintf("%s:%s\r\n", k, v)
+	}
+	if to != "" {
+		email["ToEmail"] = to
+	}
+	if msg != "" {
+		email["Body"] = msg
+	}
 	message += "\r\n" + email["Body"].(string)
 
 	auth := smtp.PlainAuth(

@@ -8,6 +8,7 @@ package main
 import (
 	"bytes"
 	"daily_fudan/baiduAPI"
+	"daily_fudan/mail"
 	. "daily_fudan/util"
 	"encoding/base64"
 	"encoding/json"
@@ -17,6 +18,8 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -35,12 +38,61 @@ var (
 	Referer       = fudanDailyUrl
 	gCurCookies   []*http.Cookie
 	gCurCookieJar *cookiejar.Jar
+	times         = 4 //验证码识别次数
+	userFile      = "user.json"
 )
 
 type userInfo struct {
 	Username string
 	Password string
 	Email    string
+}
+
+func createUserfile(userFile string) (res []userInfo) {
+	for {
+		user := userInfo{}
+		fmt.Println("请输入账号")
+		fmt.Scanln(&user.Username)
+		fmt.Println("请输入密码")
+		fmt.Scanln(&user.Password)
+		fmt.Println("请输入邮箱")
+		fmt.Scanln(&user.Email)
+		fmt.Println("是否继续添加y/n")
+		isContinue := ""
+		for {
+			fmt.Scanln(&isContinue)
+			if isContinue != "y" && isContinue != "n" {
+				fmt.Println("错误输入，是否继续添加y/n")
+			} else {
+				break
+			}
+
+		}
+		res = append(res, user)
+		if isContinue == "n" {
+			break
+		}
+	}
+	mp := map[string]interface{}{}
+	for _, u := range res {
+		mp[u.Username] = []string{u.Password, u.Email}
+	}
+	WriteToJsonFile(userFile, mp)
+	return res
+}
+
+func getUsers() (res []userInfo) {
+	data, _ := ioutil.ReadFile(userFile)
+	if data == nil {
+		fmt.Println("未发现用户数据")
+		return createUserfile(userFile)
+	}
+	mp := ReadFromJsonFile(userFile)
+	for k, v := range mp {
+		user := userInfo{k, (v.([]interface{})[0]).(string), (v.([]interface{})[1]).(string)}
+		res = append(res, user)
+	}
+	return res
 }
 
 /*设置请求头*/
@@ -159,35 +211,46 @@ func getPayload(history string) map[string]interface{} {
 	return res
 }
 
-/*签到 TODO 将map转为post的表单*/
-func signIn(data map[string]interface{}) []byte {
+/*签到*/
+func signIn(data map[string]interface{}) string {
 	uv := url.Values{}
 	for k, v := range data {
-		uv.Add(k, v.(string))
+		t := reflect.TypeOf(v)
+		if t.Name() == "float64" {
+			uv.Add(k, strconv.Itoa(int(v.(float64))))
+		} else {
+			uv.Add(k, v.(string))
+		}
 	}
 	req, _ := http.NewRequest("POST", saveUrl, bytes.NewReader([]byte(uv.Encode())))
 	setHeader(req)
-	client.Do(req)
-	body, _ := ioutil.ReadAll(req.Body)
-	return body
+	resp, _ := client.Do(req)
+	body, _ := ioutil.ReadAll(resp.Body)
+	return string(body)
 }
 
 func main() {
-	user := userInfo{
-		Username: "20210240194",
-		Password: "Liu159632",
+	users := getUsers()
+	for _, user := range users {
+		login(user)
+		history := getHistoryInfo()
+		data := getPayload(history)
+		if data["date"].(string) == getTodayDate() {
+			fmt.Println("今日已打卡")
+			//break
+		}
+		img := getcaptchaData()
+		for i := 0; i < times; i++ {
+			ans := baiduAPI.Recognize(img)
+			data["sfz"] = "1"
+			data["code"] = ans
+			message := signIn(data)
+			if string(message) == `{"e":0,"m":"操作成功","d":{}}` {
+				mail.MailTo(user.Email, `打卡成功`)
+				break
+			}
+		}
+
+		ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
 	}
-	login(user)
-	history := getHistoryInfo()
-	data := getPayload(history)
-	if data["date"].(string) == getTodayDate() {
-		fmt.Println("今日已打卡")
-	}
-	img := getcaptchaData()
-	ans := baiduAPI.Recognize(img)
-	data["sfz"] = "1"
-	data["code"] = ans
-	signIn(data)
-	fmt.Println(ans)
-	ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
 }

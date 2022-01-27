@@ -87,6 +87,5 @@ func Recognize(img []byte) string {
 			res = append(res, byte(c))
 		}
 	}
-	fmt.Println(res)
 	return string(res)
 }
