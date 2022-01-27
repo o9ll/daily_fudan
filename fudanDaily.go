@@ -16,6 +16,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -160,9 +161,13 @@ func getPayload(history string) map[string]interface{} {
 
 /*签到 TODO 将map转为post的表单*/
 func signIn(data map[string]interface{}) []byte {
-	postdat, _ := json.Marshal(data)
-	fmt.Println(postdat)
-	req, _ := http.NewRequest("POST", saveUrl, nil)
+	uv := url.Values{}
+	for k, v := range data {
+		uv.Add(k, v.(string))
+	}
+	req, _ := http.NewRequest("POST", saveUrl, bytes.NewReader([]byte(uv.Encode())))
+	setHeader(req)
+	client.Do(req)
 	body, _ := ioutil.ReadAll(req.Body)
 	return body
 }
