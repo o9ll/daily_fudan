@@ -7,14 +7,17 @@ package main
 
 import (
 	"bytes"
-	. "daily_fudan/baiduAPI"
+	"daily_fudan/baiduAPI"
 	. "daily_fudan/util"
 	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"github.com/antchfx/htmlquery"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"strings"
+	"time"
 )
 
 var (
@@ -100,6 +103,7 @@ func login(info userInfo) {
 	gCurCookies = gCurCookieJar.Cookies(req.URL)
 }
 
+/*获取历史信息*/
 func getHistoryInfo() string {
 	req, _ := http.NewRequest("GET", getInfoUrl, nil)
 	setHeader(req)
@@ -108,6 +112,7 @@ func getHistoryInfo() string {
 	return ReadJson(res)
 }
 
+/*说去验证码图片*/
 func getcaptchaData() (res []byte) {
 	req, _ := http.NewRequest("GET", captchaUrl, nil)
 	setCaptchaHeader(req)
@@ -117,14 +122,67 @@ func getcaptchaData() (res []byte) {
 	return res
 }
 
+/*获取今日的时间格式YYYYMMDD*/
+func getTodayDate() string {
+	d := time.Now().String()
+	return d[0:4] + d[5:7] + d[8:10]
+}
+
+/*获取打卡表单数据*/
+func getPayload(history string) map[string]interface{} {
+	m := map[string]interface{}{}
+	json.Unmarshal([]byte(history), &m)
+	mD := m["d"].(map[string]interface{})
+	res := mD["info"].(map[string]interface{})
+	if res["jrdqjcqk"] != nil {
+		delete(res, "jrdqjcqk")
+	}
+	if res["jrdqtlqk"] != nil {
+		delete(res, "jrdqtlqk")
+	}
+	uinfo := mD["uinfo"].(map[string]interface{})
+	realname := uinfo["realname"].(string)
+	role := uinfo["role"].(map[string]interface{})
+	number := role["number"].(string)
+	res["ismoved"] = "0"
+	res["number"] = number
+	res["realname"] = realname
+	res["sfhbtl"] = "0"
+	res["sfjcgrq"] = "0"
+	if res["area"] == nil {
+		oldInfo := mD["oldinfo"].(map[string]interface{})
+		res["area"] = oldInfo["area"].(string)
+		res["city"] = oldInfo["city"].(string)
+		res["province"] = oldInfo["province"].(string)
+	}
+	return res
+}
+
+/*签到 TODO 将map转为post的表单*/
+func signIn(data map[string]interface{}) []byte {
+	postdat, _ := json.Marshal(data)
+	fmt.Println(postdat)
+	req, _ := http.NewRequest("POST", saveUrl, nil)
+	body, _ := ioutil.ReadAll(req.Body)
+	return body
+}
+
 func main() {
 	user := userInfo{
 		Username: "20210240194",
 		Password: "Liu159632",
 	}
 	login(user)
-	img := getcaptchaData()
-	Recognize(img)
 	history := getHistoryInfo()
+	data := getPayload(history)
+	if data["date"].(string) == getTodayDate() {
+		fmt.Println("今日已打卡")
+	}
+	img := getcaptchaData()
+	ans := baiduAPI.Recognize(img)
+	data["sfz"] = "1"
+	data["code"] = ans
+	signIn(data)
+	fmt.Println(ans)
 	ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
 }
