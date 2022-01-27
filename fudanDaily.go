@@ -237,6 +237,7 @@ func main() {
 		history := getHistoryInfo()
 		data := getPayload(history)
 		if data["date"].(string) == getTodayDate() {
+			mail.MailTo(user.Email, `今日已打卡`)
 			fmt.Println("今日已打卡")
 			break
 		}
@@ -248,6 +249,7 @@ func main() {
 			message := signIn(data)
 			if string(message) == success {
 				mail.MailTo(user.Email, `打卡成功`)
+				fmt.Println("打卡成功")
 				break
 			}
 		}
