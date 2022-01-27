@@ -7,9 +7,9 @@ package baiduAPI
 
 import (
 	"bytes"
-	. "daily_fudan/util"
 	"encoding/json"
 	"fmt"
+	. "github.com/oOlivero/daily_fudan/util"
 	"io/ioutil"
 	"net/http"
 	"net/url"

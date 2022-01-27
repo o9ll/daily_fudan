@@ -7,13 +7,13 @@ package main
 
 import (
 	"bytes"
-	"daily_fudan/baiduAPI"
-	"daily_fudan/mail"
-	. "daily_fudan/util"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/antchfx/htmlquery"
+	"github.com/oOlivero/daily_fudan/baiduAPI"
+	"github.com/oOlivero/daily_fudan/mail"
+	. "github.com/oOlivero/daily_fudan/util"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -40,6 +40,7 @@ var (
 	gCurCookieJar *cookiejar.Jar
 	times         = 4 //验证码识别次数
 	userFile      = "user.json"
+	success       = `{"e":0,"m":"操作成功","d":{}}`
 )
 
 type userInfo struct {
@@ -245,7 +246,7 @@ func main() {
 			data["sfz"] = "1"
 			data["code"] = ans
 			message := signIn(data)
-			if string(message) == `{"e":0,"m":"操作成功","d":{}}` {
+			if string(message) == success {
 				mail.MailTo(user.Email, `打卡成功`)
 				break
 			}
