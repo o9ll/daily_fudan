@@ -5,11 +5,12 @@
 ---
 
 ## 如何使用
-1. go run fudanDaily.go 
-2. 按照提示输入发送打卡推送的邮箱和token
-3. 输入账号密码邮箱
-4. 输入百度OCRAPI
-5. 完成自动打卡接受到邮件
+1. go get -u github.com/oOlivero/daily_fudan
+2. go run daily_fudan
+3. 按照提示输入发送打卡推送的邮箱和token
+4. 输入账号密码邮箱
+5. 输入百度OCRAPI
+6. 完成自动打卡接受到邮件
 
 
 ### 打卡推送的qq邮箱
