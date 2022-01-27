@@ -203,8 +203,8 @@ func getPayload(history string) map[string]interface{} {
 	res["realname"] = realname
 	res["sfhbtl"] = "0"
 	res["sfjcgrq"] = "0"
-	if res["area"] == nil {
-		oldInfo := mD["oldinfo"].(map[string]interface{})
+	if res["area"] == "" {
+		oldInfo := mD["oldInfo"].(map[string]interface{})
 		res["area"] = oldInfo["area"].(string)
 		res["city"] = oldInfo["city"].(string)
 		res["province"] = oldInfo["province"].(string)
@@ -251,6 +251,8 @@ func main() {
 				mail.MailTo(user.Email, `打卡成功`)
 				fmt.Println("打卡成功")
 				break
+			} else {
+				fmt.Println(message)
 			}
 		}
 		ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
