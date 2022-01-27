@@ -5,6 +5,13 @@
 ---
 
 ## 如何使用
+首先确保使用go mod模式
+
+```
+export GO111MODULE=on
+export GOPROXY=https://goproxy.cn
+```
+
 1. go get -u github.com/oOlivero/daily_fudan
 2. go run daily_fudan
 3. 按照提示输入发送打卡推送的邮箱和token
