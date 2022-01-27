@@ -9,7 +9,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	. "github.com/oOlivero/daily_fudan/util"
+	"github.com/oOlivero/daily_fudan/util"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -37,17 +37,17 @@ func createAPIJson(src string) {
 	fmt.Println(`请输入secret_key`)
 	fmt.Scanln(&res.Secret_key)
 	data, err := json.MarshalIndent(res, "", "	") // 第二个表示每行的前缀，这里不用，第三个是缩进符号，这里用tab
-	CheckError(err)
+	util.CheckError(err)
 	err = ioutil.WriteFile(src, data, 0777)
-	CheckError(err)
+	util.CheckError(err)
 }
 
 /*获取API的相关token*/
 func getAPI() map[string]interface{} {
-	api := ReadFromJsonFile(file)
+	api := util.ReadFromJsonFile(file)
 	if api == nil {
 		createAPIJson(file)
-		api = ReadFromJsonFile(file)
+		api = util.ReadFromJsonFile(file)
 	}
 	return api
 }
@@ -61,7 +61,7 @@ func getAccessToken() string {
 	api := getAPI()
 	resp, _ := http.Get(tokenUrl + "?grant_type=client_credentials&client_id=" + api[apiKey].(string) + "&client_secret=" + api[secretKey].(string))
 	res, _ := ioutil.ReadAll(resp.Body)
-	mp := Json2Map(res)
+	mp := util.Json2Map(res)
 	return mp[accessToken].(string)
 }
 

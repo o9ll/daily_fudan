@@ -13,7 +13,7 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/oOlivero/daily_fudan/baiduAPI"
 	"github.com/oOlivero/daily_fudan/mail"
-	. "github.com/oOlivero/daily_fudan/util"
+	"github.com/oOlivero/daily_fudan/util"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
@@ -78,7 +78,7 @@ func createUserfile(userFile string) (res []userInfo) {
 	for _, u := range res {
 		mp[u.Username] = []string{u.Password, u.Email}
 	}
-	WriteToJsonFile(userFile, mp)
+	util.WriteToJsonFile(userFile, mp)
 	return res
 }
 
@@ -88,7 +88,7 @@ func getUsers() (res []userInfo) {
 		fmt.Println("未发现用户数据")
 		return createUserfile(userFile)
 	}
-	mp := ReadFromJsonFile(userFile)
+	mp := util.ReadFromJsonFile(userFile)
 	for k, v := range mp {
 		user := userInfo{k, (v.([]interface{})[0]).(string), (v.([]interface{})[1]).(string)}
 		res = append(res, user)
@@ -163,7 +163,7 @@ func getHistoryInfo() string {
 	setHeader(req)
 	resp, _ := client.Do(req)
 	res, _ := ioutil.ReadAll(resp.Body)
-	return ReadJson(res)
+	return util.ReadJson(res)
 }
 
 /*说去验证码图片*/
