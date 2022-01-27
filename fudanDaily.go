@@ -119,7 +119,7 @@ func setCaptchaHeader(r *http.Request) {
 }
 
 /*初始化client*/
-func init() {
+func initClient() {
 	gCurCookieJar, _ = cookiejar.New(nil)
 	client = &http.Client{
 		CheckRedirect: nil,
@@ -234,13 +234,14 @@ func signIn(data map[string]interface{}) string {
 func main() {
 	users := getUsers()
 	for _, user := range users {
+		initClient()
 		login(user)
 		history := getHistoryInfo()
 		data := getPayload(history)
 		if data["date"].(string) == getTodayDate() {
 			mail.MailTo(user.Email, `今日已打卡`)
 			fmt.Println("今日已打卡")
-			break
+			continue
 		}
 		var (
 			flag    bool
