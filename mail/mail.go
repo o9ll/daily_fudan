@@ -7,9 +7,9 @@ package mail
 
 import (
 	"crypto/tls"
-	. "daily_fudan/util"
 	"encoding/json"
 	"fmt"
+	"github.com/oOlivero/daily_fudan/util"
 	"io/ioutil"
 	"log"
 	"net"
@@ -126,9 +126,9 @@ func createEmailJson(src string) {
 	fmt.Println(`请输入邮件格式（直接回车为默认"text/html;chartset=UTF-8"）`)
 	fmt.Scanln(&res.Header.ContentType)
 	data, err := json.MarshalIndent(res, "", "	") // 第二个表示每行的前缀，这里不用，第三个是缩进符号，这里用tab
-	CheckError(err)
+	util.CheckError(err)
 	err = ioutil.WriteFile(src, data, 0777)
-	CheckError(err)
+	util.CheckError(err)
 }
 
 func Mail() {
@@ -136,7 +136,7 @@ func Mail() {
 	if data == nil {
 		createEmailJson("mail.json")
 	}
-	email := ReadFromJsonFile("mail.json")
+	email := util.ReadFromJsonFile("mail.json")
 	header := email["Header"].(map[string]interface{})
 	message := ""
 	for k, v := range header {
@@ -169,7 +169,7 @@ func MailTo(to, msg string) {
 	if data == nil {
 		createEmailJson("mail.json")
 	}
-	email := ReadFromJsonFile("mail.json")
+	email := util.ReadFromJsonFile("mail.json")
 	header := email["Header"].(map[string]interface{})
 	message := ""
 	for k, v := range header {
