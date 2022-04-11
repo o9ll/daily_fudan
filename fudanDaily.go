@@ -8,20 +8,20 @@ package main
 import (
 	"bytes"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
-	"github.com/antchfx/htmlquery"
-	"github.com/oOlivero/daily_fudan/baiduAPI"
-	"github.com/oOlivero/daily_fudan/mail"
-	"github.com/oOlivero/daily_fudan/util"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
-	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/antchfx/htmlquery"
+	"github.com/oOlivero/daily_fudan/baiduAPI"
+	"github.com/oOlivero/daily_fudan/mail"
+	"github.com/oOlivero/daily_fudan/util"
+	"github.com/tidwall/gjson"
 )
 
 var (
@@ -183,47 +183,39 @@ func getTodayDate() string {
 }
 
 /*获取打卡表单数据*/
-func getPayload(history string) map[string]interface{} {
-	m := map[string]interface{}{}
-	json.Unmarshal([]byte(history), &m)
-	mD := m["d"].(map[string]interface{})
-	res := mD["info"].(map[string]interface{})
-	if res["jrdqjcqk"] != nil {
-		delete(res, "jrdqjcqk")
+func getPayload(history string) map[string]string {
+	jsonMap := gjson.Get(history, "d")
+	res := map[string]string{}
+	for k, v := range jsonMap.Get("info").Map() {
+		res[k] = v.String()
 	}
-	if res["jrdqtlqk"] != nil {
-		delete(res, "jrdqtlqk")
-	}
-	uinfo := mD["uinfo"].(map[string]interface{})
-	realname := uinfo["realname"].(string)
-	role := uinfo["role"].(map[string]interface{})
-	number := role["number"].(string)
+	res["realname"] = jsonMap.Get("uinfo.realname").String()
+	res["number"] = jsonMap.Get("uinfo.role.number").String()
 	res["ismoved"] = "0"
-	res["number"] = number
-	res["realname"] = realname
 	res["sfhbtl"] = "0"
 	res["sfjcgrq"] = "0"
 	res["sfzx"] = "0"
+	if res["jrdqjcqk"] != "" {
+		delete(res, "jrdqjcqk")
+	}
+	if res["jrdqtlqk"] != "" {
+		delete(res, "jrdqtlqk")
+	}
 	if res["area"] == "" {
-		oldInfo := mD["oldInfo"].(map[string]interface{})
-		res["area"] = oldInfo["area"].(string)
-		res["city"] = oldInfo["city"].(string)
-		res["province"] = oldInfo["province"].(string)
+		res["area"] = jsonMap.Get("oldInfo.area").String()
+		res["city"] = jsonMap.Get("oldInfo.city").String()
+		res["province"] = jsonMap.Get("oldInfo.province").String()
 	}
 	return res
 }
 
 /*签到*/
-func signIn(data map[string]interface{}) string {
+func signIn(data map[string]string) string {
 	uv := url.Values{}
 	for k, v := range data {
-		t := reflect.TypeOf(v)
-		if t.Name() == "float64" {
-			uv.Add(k, strconv.Itoa(int(v.(float64))))
-		} else {
-			uv.Add(k, v.(string))
-		}
+		uv.Add(k, v)
 	}
+	fmt.Println(uv)
 	req, _ := http.NewRequest("POST", saveUrl, bytes.NewReader([]byte(uv.Encode())))
 	setHeader(req)
 	resp, _ := client.Do(req)
@@ -238,7 +230,7 @@ func main() {
 		login(user)
 		history := getHistoryInfo()
 		data := getPayload(history)
-		if data["date"].(string) == getTodayDate() {
+		if data["date"] == getTodayDate() {
 			mail.MailTo(user.Email, `今日已打卡`)
 			fmt.Println("今日已打卡")
 			continue
