@@ -235,8 +235,9 @@ func main() {
 		history := getHistoryInfo()
 		data := getPayload(history)
 		if data["date"] == getTodayDate() {
-			mail.MailTo(user.Email, `今日已打卡`)
-			fmt.Println("今日已打卡")
+			msg := `今日已打卡` + "\nrealname:\t" + data["realname"] + "\naddress:\t" + data["address"]
+			fmt.Println(msg)
+			mail.MailTo(user.Email, msg)
 			continue
 		}
 		var (
@@ -250,7 +251,7 @@ func main() {
 			data["code"] = ans
 			message = signIn(data)
 			if string(message) == success {
-				msg := `打卡成功` + `验证码识别` + strconv.Itoa(i+1) + "次" + "\nrealname:" + data["realname"] + "\narea:" + data["area"]
+				msg := `打卡成功` + `验证码识别` + strconv.Itoa(i+1) + `次` + "\nrealname:\t" + data["realname"] + "\naddress:\t" + data["address"]
 				mail.MailTo(user.Email, msg)
 				fmt.Println("打卡成功")
 				flag = true
@@ -261,7 +262,8 @@ func main() {
 		}
 		if !flag {
 			mail.MailTo(user.Email, message)
-			fmt.Println("打卡成功")
+			fmt.Println("打卡失败")
+			continue
 		}
 		ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
 	}
