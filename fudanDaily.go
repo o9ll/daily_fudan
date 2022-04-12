@@ -191,10 +191,14 @@ func getPayload(history string) map[string]string {
 	}
 	res["realname"] = jsonMap.Get("uinfo.realname").String()
 	res["number"] = jsonMap.Get("uinfo.role.number").String()
-	res["ismoved"] = "0"
+	res["ismoved"] = jsonMap.Get("oldinfo.ismoved").String()
 	res["sfhbtl"] = "0"
 	res["sfjcgrq"] = "0"
 	res["sfzx"] = "0"
+	res["sffsksfl"] = "0"
+	res["sfyjfx"] = "0"
+	res["sfjzxnss"] = "0"
+	res["wyyd"] = "0"
 	if res["jrdqjcqk"] != "" {
 		delete(res, "jrdqjcqk")
 	}
