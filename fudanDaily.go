@@ -246,7 +246,8 @@ func main() {
 			data["code"] = ans
 			message = signIn(data)
 			if string(message) == success {
-				mail.MailTo(user.Email, `打卡成功`+`验证码识别`+strconv.Itoa(i+1)+"次")
+				msg := `打卡成功` + `验证码识别` + strconv.Itoa(i+1) + "次" + "\nrealname:" + data["realname"] + "\narea:" + data["area"]
+				mail.MailTo(user.Email, msg)
 				fmt.Println("打卡成功")
 				flag = true
 				break
