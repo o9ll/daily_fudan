@@ -9,10 +9,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/oOlivero/daily_fudan/util"
+	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/oOlivero/daily_fudan/util"
 )
 
 var (
@@ -77,11 +79,11 @@ func Recognize(img []byte) string {
 	req.Header.Add("content-type", "application/x-www-form-urlencoded")
 	resp, _ := client.Do(req)
 	body, _ := ioutil.ReadAll(resp.Body)
-	mp := map[string]interface{}{}
-	json.Unmarshal(body, &mp)
-	mp1 := mp["words_result"].([]interface{})
-	mp2 := mp1[0].(map[string]interface{})
-	word := mp2["words"].(string)
+	words := gjson.Get(string(body), "words_result").Array()
+	if len(words) == 0 {
+		return ""
+	}
+	word := words[0].Get("words").String()
 	for _, c := range word {
 		if c != ' ' {
 			res = append(res, byte(c))

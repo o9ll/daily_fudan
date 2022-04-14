@@ -18,10 +18,11 @@ import (
 	"time"
 
 	"github.com/antchfx/htmlquery"
-	"github.com/oOlivero/daily_fudan/baiduAPI"
-	"github.com/oOlivero/daily_fudan/mail"
-	"github.com/oOlivero/daily_fudan/util"
 	"github.com/tidwall/gjson"
+
+	"daily_fudan/baiduAPI"
+	"daily_fudan/mail"
+	"daily_fudan/util"
 )
 
 var (
