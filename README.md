@@ -12,12 +12,18 @@ export GO111MODULE=on
 export GOPROXY=https://goproxy.cn
 ```
 
-1. go get -u github.com/oOlivero/daily_fudan
-2. go run daily_fudan
-3. 按照提示输入发送打卡推送的邮箱和token
-4. 输入账号密码邮箱
-5. 输入百度OCRAPI
-6. 完成自动打卡接受到邮件
+1. 使用go get 获取代码
+~~~
+go get -u github.com/oOlivero/daily_fudan
+~~~
+2. 确保 go bin的路径在环境变量里
+~~~
+daily_fudan
+~~~
+5. 按照提示输入发送打卡推送的邮箱和token
+6. 输入账号密码邮箱
+7. 输入百度OCRAPI
+8. 完成自动打卡接受到邮件
 
 
 ### 打卡推送的qq邮箱
