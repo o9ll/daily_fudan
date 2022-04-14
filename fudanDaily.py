@@ -69,7 +69,14 @@ def get_payload(_historical_info):
         "number": _historical_info["uinfo"]["role"]["number"],
         "realname": _historical_info["uinfo"]["realname"],
         "sfhbtl": 0,
-        "sfjcgrq": 0
+        "sfjcgrq": 0,
+        "sfjcgrq": 0,
+        "sfzx":0,
+        "sffsksfl":0,
+        "sfyjfx":0,
+        "sfjzxnss":0,
+        "wyyd":0
+
     })
 
     if not _payload["area"]:
