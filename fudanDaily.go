@@ -232,7 +232,7 @@ func main() {
 		data := getPayload(history)
 		if data["date"] == getTodayDate() {
 			msg := `今日已打卡` + "</br>姓名:    " + data["realname"] + "</br>地点:    " + data["address"]
-			mail.MailTo(user.Email, msg)
+			mail.MailTo(user.Email, data["area"], msg)
 			fmt.Println("今日已打卡" + msg)
 			continue
 		}
@@ -248,7 +248,7 @@ func main() {
 			message = signIn(data)
 			if string(message) == success {
 				msg := `打卡成功` + `验证码识别` + strconv.Itoa(i+1) + "次" + "</br>姓名:    " + data["realname"] + "</br>地点:    " + data["address"]
-				mail.MailTo(user.Email, msg)
+				mail.MailTo(user.Email, data["area"], msg)
 				fmt.Println("打卡成功")
 				flag = true
 				break
@@ -257,8 +257,9 @@ func main() {
 			}
 		}
 		if !flag {
-			mail.MailTo(user.Email, message)
-			fmt.Println("打卡成功")
+			msg := "打卡失败请手动打卡"
+			mail.MailTo(user.Email, data["area"], msg)
+			fmt.Println("打卡失败")
 		}
 		ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
 	}
