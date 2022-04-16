@@ -1,4 +1,4 @@
-module daily_fudan
+module github.com/o9ltop/daily_fudan
 
 go 1.17
 
