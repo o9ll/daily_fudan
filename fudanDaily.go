@@ -219,7 +219,6 @@ func signIn(data map[string]string) string {
 	for k, v := range data {
 		uv.Add(k, v)
 	}
-	fmt.Println(uv)
 	req, _ := http.NewRequest("POST", saveUrl, bytes.NewReader([]byte(uv.Encode())))
 	setHeader(req)
 	resp, _ := client.Do(req)
