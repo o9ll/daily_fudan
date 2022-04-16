@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -39,7 +40,9 @@ var (
 	gCurCookies   []*http.Cookie
 	gCurCookieJar *cookiejar.Jar
 	times         = 4 //验证码识别次数
-	userFile      = "user.json"
+	userFilePath  = "./config/"
+	userFileName  = "user.json"
+	userFile      = userFilePath + userFileName
 	success       = `{"e":0,"m":"操作成功","d":{}}`
 )
 
@@ -78,6 +81,7 @@ func createUserfile(userFile string) (res []userInfo) {
 	for _, u := range res {
 		mp[u.Username] = []string{u.Password, u.Email}
 	}
+	os.MkdirAll(userFilePath, 0777)
 	util.WriteToJsonFile(userFile, mp)
 	return res
 }
@@ -225,6 +229,8 @@ func signIn(data map[string]string) string {
 
 func main() {
 	users := getUsers()
+	m := mail.NewMail()
+	b := baiduAPI.NewBaiduAPI()
 	for _, user := range users {
 		initClient()
 		login(user)
@@ -233,7 +239,7 @@ func main() {
 		if data["date"] == getTodayDate() {
 			fmt.Println(`今日已打卡` + "\n姓名:    " + data["realname"] + "\n地点:    " + data["address"])
 			msg := "</br>姓名:    " + data["realname"] + "</br>地点:    " + data["address"]
-			mail.MailTo(user.Email, "今日已打卡:"+data["area"], msg)
+			m.MailTo(user.Email, "今日已打卡:"+data["area"], msg)
 			continue
 		}
 		var (
@@ -242,13 +248,13 @@ func main() {
 		)
 		for i := 0; i < times; i++ {
 			img := getcaptchaData()
-			ans := baiduAPI.Recognize(img)
+			ans := b.Recognize(img)
 			data["sfz"] = "1"
 			data["code"] = ans
 			message = signIn(data)
 			if string(message) == success {
 				msg := `验证码识别` + strconv.Itoa(i+1) + "次" + "</br>姓名:    " + data["realname"] + "</br>地点:    " + data["address"]
-				mail.MailTo(user.Email, "打卡成功:"+data["area"], msg)
+				m.MailTo(user.Email, "打卡成功:"+data["area"], msg)
 				fmt.Println("打卡成功")
 				flag = true
 				break
@@ -258,9 +264,10 @@ func main() {
 		}
 		if !flag {
 			msg := "打卡失败请手动打卡"
-			mail.MailTo(user.Email, msg, msg)
+			m.MailTo(user.Email, msg, msg)
 			fmt.Println(msg)
 		}
-		ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
+		os.MkdirAll(userFilePath, 0777)
+		ioutil.WriteFile(userFilePath+user.Username+".json", []byte(history), 0777)
 	}
 }
