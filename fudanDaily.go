@@ -18,11 +18,10 @@ import (
 	"time"
 
 	"github.com/antchfx/htmlquery"
+	"github.com/o9ltop/common/baiduAPI"
+	"github.com/o9ltop/common/mail"
+	"github.com/o9ltop/common/util"
 	"github.com/tidwall/gjson"
-
-	"daily_fudan/baiduAPI"
-	"daily_fudan/mail"
-	"daily_fudan/util"
 )
 
 var (
@@ -192,14 +191,10 @@ func getPayload(history string) map[string]string {
 	}
 	res["realname"] = jsonMap.Get("uinfo.realname").String()
 	res["number"] = jsonMap.Get("uinfo.role.number").String()
-	res["ismoved"] = jsonMap.Get("oldinfo.ismoved").String()
+	res["ismoved"] = "0"
 	res["sfhbtl"] = "0"
 	res["sfjcgrq"] = "0"
 	res["sfzx"] = "0"
-	res["sffsksfl"] = "0"
-	res["sfyjfx"] = "0"
-	res["sfjzxnss"] = "0"
-	res["wyyd"] = "0"
 	if res["jrdqjcqk"] != "" {
 		delete(res, "jrdqjcqk")
 	}
@@ -236,9 +231,8 @@ func main() {
 		history := getHistoryInfo()
 		data := getPayload(history)
 		if data["date"] == getTodayDate() {
-			msg := `今日已打卡` + "\nrealname:\t" + data["realname"] + "\naddress:\t" + data["address"]
-			fmt.Println(msg)
-			mail.MailTo(user.Email, msg)
+			mail.MailTo(user.Email, `今日已打卡`)
+			fmt.Println("今日已打卡")
 			continue
 		}
 		var (
@@ -252,7 +246,7 @@ func main() {
 			data["code"] = ans
 			message = signIn(data)
 			if string(message) == success {
-				msg := `打卡成功` + `验证码识别` + strconv.Itoa(i+1) + `次` + "\nrealname:\t" + data["realname"] + "\naddress:\t" + data["address"]
+				msg := `打卡成功` + `验证码识别` + strconv.Itoa(i+1) + "次" + "\nrealname:" + data["realname"] + "\narea:" + data["area"]
 				mail.MailTo(user.Email, msg)
 				fmt.Println("打卡成功")
 				flag = true
@@ -263,8 +257,7 @@ func main() {
 		}
 		if !flag {
 			mail.MailTo(user.Email, message)
-			fmt.Println("打卡失败")
-			continue
+			fmt.Println("打卡成功")
 		}
 		ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
 	}
