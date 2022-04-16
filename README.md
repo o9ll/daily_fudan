@@ -14,7 +14,7 @@ export GOPROXY=https://goproxy.cn
 
 1. 使用go get 获取代码
 ~~~
-go get -u github.com/oOlivero/daily_fudan
+go install github.com/o9ltop/daily_fudan@latest
 ~~~
 2. 确保 go bin的路径在环境变量里
 ~~~
