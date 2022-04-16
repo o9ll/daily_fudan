@@ -231,9 +231,9 @@ func main() {
 		history := getHistoryInfo()
 		data := getPayload(history)
 		if data["date"] == getTodayDate() {
-			msg := `今日已打卡` + "</br>姓名:    " + data["realname"] + "</br>地点:    " + data["area"]
+			msg := `今日已打卡` + "</br>姓名:    " + data["realname"] + "</br>地点:    " + data["address"]
 			mail.MailTo(user.Email, msg)
-			fmt.Println("今日已打卡")
+			fmt.Println("今日已打卡" + msg)
 			continue
 		}
 		var (
@@ -247,7 +247,7 @@ func main() {
 			data["code"] = ans
 			message = signIn(data)
 			if string(message) == success {
-				msg := `打卡成功` + `验证码识别` + strconv.Itoa(i+1) + "次" + "</br>姓名:    " + data["realname"] + "</br>地点:    " + data["area"]
+				msg := `打卡成功` + `验证码识别` + strconv.Itoa(i+1) + "次" + "</br>姓名:    " + data["realname"] + "</br>地点:    " + data["address"]
 				mail.MailTo(user.Email, msg)
 				fmt.Println("打卡成功")
 				flag = true
