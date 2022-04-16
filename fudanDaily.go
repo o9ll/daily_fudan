@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -39,7 +40,9 @@ var (
 	gCurCookies   []*http.Cookie
 	gCurCookieJar *cookiejar.Jar
 	times         = 4 //验证码识别次数
-	userFile      = "user.json"
+	userFilePath  = "./config/"
+	userFileName  = "user.json"
+	userFile      = userFilePath + userFileName
 	success       = `{"e":0,"m":"操作成功","d":{}}`
 )
 
@@ -78,6 +81,7 @@ func createUserfile(userFile string) (res []userInfo) {
 	for _, u := range res {
 		mp[u.Username] = []string{u.Password, u.Email}
 	}
+	os.MkdirAll(userFilePath, 0777)
 	util.WriteToJsonFile(userFile, mp)
 	return res
 }
@@ -261,6 +265,7 @@ func main() {
 			mail.MailTo(user.Email, msg, msg)
 			fmt.Println(msg)
 		}
-		ioutil.WriteFile(user.Username+".json", []byte(history), 0777)
+		os.MkdirAll(userFilePath, 0777)
+		ioutil.WriteFile(userFilePath+user.Username+".json", []byte(history), 0777)
 	}
 }

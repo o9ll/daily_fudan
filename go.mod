@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/antchfx/htmlquery v1.2.4
-	github.com/o9ltop/common v1.1.4
+	github.com/o9ltop/common v1.2.0
 	github.com/tidwall/gjson v1.14.0
 )
 
