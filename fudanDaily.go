@@ -132,14 +132,26 @@ func initClient() {
 }
 
 /*登陆*/
-func login(info userInfo) {
-	req, _ := http.NewRequest("GET", loginUrl, nil)
+func login(info userInfo) error {
+	req, err := http.NewRequest("GET", loginUrl, nil)
+	if err != nil {
+		return err
+	}
 	setHeader(req)
-	resp, _ := client.Do(req)
-	body, _ := ioutil.ReadAll(resp.Body)
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
 	//找到表单中的所有参数按照默认填入
 	uv := ""
-	h, _ := htmlquery.Parse(strings.NewReader(string(body)))
+	h, err := htmlquery.Parse(strings.NewReader(string(body)))
+	if err != nil {
+		return err
+	}
 	a := htmlquery.Find(h, "//input")
 	for i := range a {
 		name := htmlquery.SelectAttr(a[i], "name")
@@ -155,29 +167,54 @@ func login(info userInfo) {
 		}
 	}
 	uv = uv[1:]
-	req, _ = http.NewRequest("POST", loginUrl, bytes.NewReader([]byte(uv)))
+	req, err = http.NewRequest("POST", loginUrl, bytes.NewReader([]byte(uv)))
+	if err != nil {
+		return err
+	}
 	setHeader(req)
-	resp, _ = client.Do(req)
+	resp, err = client.Do(req)
+	if err != nil {
+		return err
+	}
 	gCurCookies = gCurCookieJar.Cookies(req.URL)
+	return nil
 }
 
 /*获取历史信息*/
-func getHistoryInfo() string {
-	req, _ := http.NewRequest("GET", getInfoUrl, nil)
+func getHistoryInfo() (string, error) {
+	req, err := http.NewRequest("GET", getInfoUrl, nil)
+	if err != nil {
+		return "", err
+	}
 	setHeader(req)
-	resp, _ := client.Do(req)
-	res, _ := ioutil.ReadAll(resp.Body)
-	return util.ReadJson(res)
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	res, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return util.ReadJson(res), nil
 }
 
 /*说去验证码图片*/
-func getcaptchaData() (res []byte) {
-	req, _ := http.NewRequest("GET", captchaUrl, nil)
+func getcaptchaData() (res []byte, err error) {
+	req, err := http.NewRequest("GET", captchaUrl, nil)
+	if err != nil {
+		return nil, err
+	}
 	setCaptchaHeader(req)
-	resp, _ := client.Do(req)
-	img, _ := ioutil.ReadAll(resp.Body)
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	img, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 	res = []byte(base64.StdEncoding.EncodeToString(img))
-	return res
+	return res, nil
 }
 
 /*获取今日的时间格式YYYYMMDD*/
@@ -232,8 +269,16 @@ func main() {
 	b := baiduAPI.NewBaiduAPI()
 	for _, user := range users {
 		initClient()
-		login(user)
-		history := getHistoryInfo()
+		err := login(user)
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+		history, err := getHistoryInfo()
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
 		if history == "" {
 			fmt.Println(user.Username, "未获取到历史数据，请检查账号密码是否正确")
 			continue
@@ -250,7 +295,12 @@ func main() {
 			message string
 		)
 		for i := 0; i < times; i++ {
-			img := getcaptchaData()
+			img, err := getcaptchaData()
+			if err != nil {
+				fmt.Println(err.Error())
+				continue
+				return
+			}
 			ans := b.Recognize(img)
 			data["sfz"] = "1"
 			data["code"] = ans
