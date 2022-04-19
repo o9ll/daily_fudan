@@ -258,7 +258,7 @@ func main() {
 			if string(message) == success {
 				msg := `验证码识别` + strconv.Itoa(i+1) + "次" + "</br>姓名:    " + data["realname"] + "</br>地点:    " + data["address"]
 				m.MailTo(user.Email, "打卡成功:"+data["area"], msg)
-				fmt.Println("打卡成功")
+				fmt.Println("打卡成功", `验证码识别`+strconv.Itoa(i+1)+"次"+"\n姓名:    "+data["realname"]+"\n地点:    "+data["address"])
 				flag = true
 				break
 			} else {
