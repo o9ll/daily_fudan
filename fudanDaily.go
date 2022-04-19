@@ -234,6 +234,10 @@ func main() {
 		initClient()
 		login(user)
 		history := getHistoryInfo()
+		if history == "" {
+			fmt.Println(user.Username, "未获取到历史数据，请检查账号密码是否正确")
+			continue
+		}
 		data := getPayload(history)
 		if data["date"] == getTodayDate() {
 			fmt.Println(`今日已打卡` + "\n姓名:    " + data["realname"] + "\n地点:    " + data["address"])
